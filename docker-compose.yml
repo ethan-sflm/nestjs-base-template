@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  mongo:
+    image: mongo:4.4.0
+    ports:
+      - 27017:27017
+  redis:
+    image: redis:3.2.12-alpine
+    ports:
+      - target: 6379
+        published: 6379
+        mode: host
+  mysql:
+    image: mysql:8.0.21
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=general-user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=nestjs-base-template
+    ports:
+      - target: 3306
+        published: 3306
+        mode: host
+  flyway:
+    image: flyway/flyway
+    command: migrate
+    environment:
+      FLYWAY_URL: jdbc:mysql://mysql:3306/nestjs-base-template
+      FLYWAY_USER: general-user
+      FLYWAY_PASSWORD: password
+      FLYWAY_CONNECT_RETRIES: 30
+    volumes:
+      - ./migrations:/flyway/sql
+    depends_on:
+      - mysql
